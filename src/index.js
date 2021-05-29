@@ -63,6 +63,13 @@ const loadReservations = async (reservations) => {
   }
 };
 
+const renderReservations = async () => {
+  const userId = window.location.hash.slice(6);
+  const response = await fetch(`/api/users/${userId}/reservations`); //url in fetch can send request to server.so the url is what it's sending.
+  const updatedResv = await response.json();
+  loadReservations(updatedResv);
+};
+
 const btnReserveFunc = async (parentNode, resvId) => {
   const reservBtn = createEle("button", { id: `/#rest-${resvId} ` }, "reserve");
   parentNode.prepend(reservBtn);
@@ -78,8 +85,7 @@ const btnReserveFunc = async (parentNode, resvId) => {
       },
       body: JSON.stringify({ restaurantId: resvId }),
     });
-    const updatedResv = await response.json();
-    loadReservations(updatedResv);
+    renderReservations();
   });
 };
 
@@ -88,15 +94,11 @@ const btnCancelFunc = async (parentNode, cancelId) => {
   parentNode.prepend(cancelBtn);
 
   cancelBtn.addEventListener("click", async () => {
-    const userId = window.location.hash.slice(6);
     const response1 = await fetch(`/api/reservations/${cancelId}`, {
       method: "DELETE",
     });
     // await response.json();
-
-    const response = await fetch(`/api/users/${userId}/reservations`); //url in fetch can send request to server.so the url is what it's sending.
-    const updatedResv = await response.json();
-    loadReservations(updatedResv);
+    renderReservations();
   });
 };
 
@@ -109,16 +111,13 @@ window.addEventListener(
     try {
       [...document.querySelectorAll(".users")].map(
         (ele) => (ele.style.backgroundColor = "")
-      );
+      ); //using map to clear out the backgroungColor of each node.
 
       const num = window.location.hash.slice(6);
-      const response = await fetch(`/api/users/${num}/reservations`); //url in fetch can send request to server.so the url is what it's sending.
-      const reservations = await response.json();
-      // console.log(reservations);
-      loadReservations(reservations);
+      renderReservations();
 
       document.getElementById(`user-${num}`).style.backgroundColor =
-        "#00ff0080";
+        "#00ff0080"; // add transparent green color when selected
     } catch (er) {
       console.log(er.message);
     }
